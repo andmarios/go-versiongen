@@ -19,10 +19,18 @@
   It assumes:
   1. your go project uses git for source control
   2. you have at least one tagged commit (e.g v0.1)
+
+  Look into the example subdirectory to see how you can use it:
+    git clone github.com/andmarios/go-versiongen
+    cd go-versiongen/example
+    ls
+    go generate
+    go run main.go version.go
 */
 package versiongen
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -72,21 +80,27 @@ func CreateFile(filename string) error {
 	// Get version
 	version, err := runGitSingleLineReturn("git", "describe", "--tags")
 	if err != nil {
-		return err
+		return errors.New("Could not run 'git describe --tags'. " +
+			"Are there any tags in your repo? Error: " + err.Error())
 	}
 
 	// Get SHA1
 	hash, err := runGitSingleLineReturn("git", "rev-parse", "HEAD")
 	if err != nil {
-		return err
+		return errors.New("Could not run 'git rev-parse HEAD' " +
+			"to get commit hash. Error: " + err.Error())
 	}
 
 	// Get uncommited changes, split them by line
 	diffIndex, err := runGitSingleLineReturn("git", "diff-index", "HEAD")
 	if err != nil {
-		return err
+		errors.New("Could not run 'git diff-index HEAD' " +
+			"to detect uncommited changes. Error: " + err.Error())
 	}
-	diffIndexLines := strings.Split(strings.TrimSpace(diffIndex), "\n")
+	var diffIndexLines []string
+	if strings.TrimSpace(diffIndex) != "" { // Because direct assignment will give us []string{""}
+		diffIndexLines = strings.Split(strings.TrimSpace(diffIndex), "\n")
+	}
 
 	uncommitedChanges := false
 UNCOMMITED:

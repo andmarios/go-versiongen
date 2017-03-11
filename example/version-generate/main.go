@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	// Create version.go
 	err := versiongen.Create()
 	if err != nil {
 		log.Fatalln(err)
