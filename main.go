@@ -14,11 +14,22 @@
 
 /*
   Package versiongen provides an opinionated method to add version information
-  (version number and git commit hash) to go projects via 'go generate'.
+  (version number and git commit hash) to go projects via 'go generate'. It
+  produces a go file that includes a vgVersion constant with the version of
+  your software and a vgHash constant with the SHA1 of the HEAD at build time.
 
   It assumes:
+
   1. your go project uses git for source control
+
   2. you have at least one tagged commit (e.g v0.1)
+
+  The file it creates (version.go by default) looks like:
+    package main
+    const (
+            vgVersion   = "0.1-dirty"
+            vgHash      = "c2362208e1f70fba02b2240a9b743a5aef76a900"
+    )
 
   Look into the example subdirectory to see how you can use it:
     git clone github.com/andmarios/go-versiongen
@@ -64,18 +75,20 @@ type versionData struct {
 	commit       string
 }
 
-// Create will create a file named version.go in the top directory of your
-// project, that will contain two constants.
+// Create will create a file named version.go in the directory you ran
+// 'go generate', that will contain two constants:
 //
-// vgVersion : The version of your program as given by 'git describe --tags'
-//             plus the DirtyString variable if you have uncommited changes.
-// vgHash    : The SHA1 hash of your current commit.
+// vgVersion: The version of your program as given by 'git describe --tags'
+// plus the DirtyString variable if you have uncommited changes.
+//
+// vgHash: The SHA1 hash of your current commit.
 func Create() error {
 	return CreateFile(defaultFilename)
 }
 
 // CreateFile will work as Create() but instead of writing version.go in the
-// top level directory of your project, will write filename instead.
+// directory you ran 'go generate' in, it will write filename instead (which
+// may include a path).
 func CreateFile(filename string) error {
 	// Get version
 	version, err := runGitSingleLineReturn("git", "describe", "--tags")
