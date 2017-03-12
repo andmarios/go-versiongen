@@ -12,37 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*
-  Package versiongen provides an opinionated method to add version information
-  (version number and git commit hash) to go projects via 'go generate'. It
-  produces a go file that includes a vgVersion constant with the version of
-  your software and a vgHash constant with the SHA1 of the HEAD at build time.
-
-  It assumes:
-
-  1. your go project uses git for source control
-
-  2. you have at least one tagged commit (e.g v0.1)
-
-  The file it creates (version.go by default) looks like:
-    package main
-    const (
-            vgVersion   = "0.1-dirty"
-            vgHash      = "c2362208e1f70fba02b2240a9b743a5aef76a900"
-    )
-
-  Look into the example subdirectory to see how you can use it:
-    git clone github.com/andmarios/go-versiongen
-    cd go-versiongen/example
-    ls
-    go generate
-    go run main.go version.go
-*/
 package versiongen
 
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -124,7 +99,7 @@ UNCOMMITED:
 				matches++
 			}
 		}
-		if matches == 0 { // If none matched, then this file has uncommited changes and the build is dirty
+		if matches == 0 { // If none matched, this file has uncommited changes, build is dirty
 			uncommitedChanges = true
 			break UNCOMMITED
 		}
@@ -132,6 +107,9 @@ UNCOMMITED:
 	if uncommitedChanges {
 		version += DirtyString
 	}
+
+	log.Println("Setting vgVersion to: " + version)
+	log.Println("Setting vgHash to: " + hash)
 
 	err = writeVersionFile(filename, versionData{version, hash})
 	return err
