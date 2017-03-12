@@ -27,8 +27,9 @@
   The file it creates (version.go by default) looks like:
     package main
     const (
-            vgVersion   = "0.1-dirty"
-            vgHash      = "c2362208e1f70fba02b2240a9b743a5aef76a900"
+            vgVersion   = "v0.1-2-g7665642+"
+            vgHash      = "7665642a17cecca2693d48276b07c28bd29cda06"
+            vgClean     = false
     )
 
   Look into the example subdirectory to see how you can use it:
